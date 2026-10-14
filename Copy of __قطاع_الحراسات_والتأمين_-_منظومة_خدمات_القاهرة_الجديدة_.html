@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قطاع الحراسات والتأمين - منظومة خدمات القاهرة الجديدة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #070b14 0%, #0c1425 50%, #070b14 100%);
+            color: #f8fafc;
+        }
+        .gold-border {
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        .gold-border-focus:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #d4af37 50%, #ca8a04 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-badge {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: #fde047;
+        }
+        .glass-card {
+            background: rgba(12, 20, 37, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(7, 11, 20, 0.5);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(212, 175, 55, 0.4);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 175, 55, 0.7);
+        }
+        .admin-locked {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-black">
+
+    <!-- Authentication Lock Screen Overlay -->
+    <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full p-6 sm:p-8 rounded-2xl shadow-2xl border border-amber-500/40 text-center relative overflow-hidden">
+            <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-3xl text-amber-400 mx-auto mb-4 shadow-lg">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h2 class="text-xl font-black text-amber-100 mb-1">قطاع الحراسات والتأمين</h2>
+            <p class="text-xs text-amber-300/70 mb-6" id="auth-subtitle">تسجيل الدخول للمنظومة الأمنية</p>
+
+            <!-- Mode 1: Login Form -->
+            <div id="login-box" class="space-y-4">
+                <div class="space-y-3 text-right">
+                    <div>
+                        <label class="block text-xs font-bold text-amber-300 mb-1">اسم المستخدم (Username):</label>
+                        <input type="text" id="login-username" placeholder="أدخل اسم المستخدم" class="w-full bg-slate-900 border border-amber-500/30 rounded-xl px-4 py-2.5 text-xs text-amber-100 gold-border-focus focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-amber-300 mb-1">كلمة المرور (Password):</label>
+                        <input type="password" id="login-password" placeholder="أدخل كلمة المرور" class="w-full bg-slate-900 border border-amber-500/30 rounded-xl px-4 py-2.5 text-xs text-amber-100 gold-border-focus focus:outline-none">
+                    </div>
+                </div>
+
+                <div id="auth-error" class="text-rose-400 text-xs hidden font-bold">اسم المستخدم أو كلمة المرور غير صحيحة، أو الحساب بانتظار الموافقة</div>
+
+                <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-black py-3 rounded-xl font-black text-sm shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
+                </button>
+
+                <div class="pt-3 border-t border-amber-500/20 flex justify-between items-center text-xs">
+                    <button onclick="showRegisterBox()" class="text-amber-400 hover:underline">طلب تسجيل حساب جديد</button>
+                    <button onclick="forgotPassword()" class="text-amber-300/70 hover:text-amber-300">نسيت كلمة المرور؟</button>
+                </div>
+            </div>
+
+            <!-- Mode 2: Registration Form -->
+            <div id="register-box" class="space-y-3 hidden text-right">
+                <p class="text-xs text-slate-300 mb-2">تسجيل حساب جديد - سيتم إرسال الطلب لمسؤول الدومين للموافقة:</p>
+                
+                <div>
+                    <label class="block text-[11px] font-bold text-amber-300 mb-1">الاسم بالكامل:</label>
+                    <input type="text" id="reg-name" placeholder="الاسم الثلاثي أو الرباعي" class="w-full bg-slate-900 border border-amber-500/30 rounded-xl px-3 py-2 text-xs text-amber-100 gold-border-focus focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-bold text-amber-300 mb-1">رقم الهاتف:</label>
+                        <input type="text" id="reg-phone" placeholder="01xxxxxxxxx" class="w-full bg-slate-900 border border-amber-500/30 rounded-xl px-3 py-2 text-xs text-amber-100 gold-border-focus focus:outline-none dir-ltr text-right">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-amber-300 mb-1">الرقم القومي:</label>
+                        <input type="text" id="reg-nid" maxlength="14" placeholder="14 رقم" class="w-full bg-slate-900 border border-amber-500/30 rounded-xl px-3 py-2 text-xs text-amber-100 gold-border-focus focus:outline-none dir-ltr text-right">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-bold text-amber-300 mb-1">رقم الأقدمية:</label>
+                        <input type="text" id="reg-seniority" placeholder="رقم الأقدمية" class="w-full bg-slate-900 border border-amber-500/30 rounded-xl px-3 py-2 text-xs text-amber-100 gold-border-focus focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-amber-300 mb-1">مكان العمل:</label>
+                        <input type="text" id="reg-workplace" placeholder="مكان العمل الحالي" class="w-full bg-slate-900 border border-amber-500/30 rounded-xl px-3 py-2 text-xs text-amber-100 gold-border-focus focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-bold text-amber-300 mb-1">اسم المستخدم المقترح:</label>
+                        <input type="text" id="reg-username" placeholder="اسم المستخدم" class="w-full bg-slate-900 border border-amber-500/30 rounded-xl px-3 py-2 text-xs text-amber-100 gold-border-focus focus:outline-none dir-ltr text-right">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-amber-300 mb-1">كلمة المرور:</label>
+                        <input type="password" id="reg-password" placeholder="كلمة المرور" class="w-full bg-slate-900 border border-amber-500/30 rounded-xl px-3 py-2 text-xs text-amber-100 gold-border-focus focus:outline-none">
+                    </div>
+                </div>
+
+                <div id="reg-error" class="text-rose-400 text-xs hidden font-bold">يرجى استيفاء كافة البيانات بدقة</div>
+                <div id="reg-success" class="text-emerald-400 text-xs hidden font-bold">تم إرسال طلبك بنجاح، بانتظار موافقة مشرف الدومين (Domain).</div>
+
+                <div class="flex gap-2 pt-2">
+                    <button onclick="submitRegistration()" class="flex-1 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 text-black py-2.5 rounded-xl font-bold text-xs shadow-lg">إرسال الطلب</button>
+                    <button onclick="showLoginBox()" class="px-4 bg-slate-800 hover:bg-slate-700 text-amber-200 py-2.5 rounded-xl font-bold text-xs border border-amber-500/30">رجوع</button>
+                </div>
+            </div>
+
+            <!-- Mode 3: Domain Manager Panel -->
+            <div id="domain-panel-box" class="space-y-4 hidden text-right">
+                <div class="flex justify-between items-center border-b border-amber-500/20 pb-2">
+                    <h3 class="text-xs font-bold text-amber-300"><i class="fa-solid fa-crown text-amber-400 ml-1"></i> لوحة تحكم مشرف الدومين</h3>
+                    <button onclick="showLoginBox()" class="text-amber-400 text-xs hover:underline">إغلاق</button>
+                </div>
+                
+                <div class="space-y-3 bg-slate-950/60 p-3 rounded-xl border border-amber-500/20">
+                    <p class="text-[11px] font-bold text-amber-200">تعديل بيانات الدومين الأساسية (المشرف):</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1">اسم مشرف الدومين:</label>
+                            <input type="text" id="domain-edit-user" class="w-full bg-slate-900 border border-amber-500/30 rounded-lg px-2 py-1.5 text-xs text-amber-100 dir-ltr text-right">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1">كلمة مرور الدومين:</label>
+                            <input type="text" id="domain-edit-pass" class="w-full bg-slate-900 border border-amber-500/30 rounded-lg px-2 py-1.5 text-xs text-amber-100 dir-ltr text-right">
+                        </div>
+                    </div>
+                    <button onclick="saveDomainCredentials()" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-300 py-1.5 rounded-lg text-xs font-bold border border-amber-500/30">حفظ تعديلات الدومين</button>
+                </div>
+
+                <div>
+                    <p class="text-[11px] font-bold text-amber-200 mb-2">طلبات التسجيل المعلقة بانتظار الموافقة:</p>
+                    <div id="pending-requests-list" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1 text-xs">
+                        <!-- Filled dynamically -->
+                    </div>
+                </div>
+
+                <button onclick="showLoginBox()" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-200 py-2.5 rounded-xl font-bold text-xs border border-amber-500/30">العودة لتسجيل الدخول</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="glass-card sticky top-0 z-50 border-b border-amber-500/30 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="relative group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-yellow-600 rounded-full blur opacity-50 group-hover:opacity-100 transition duration-300"></div>
+                    <div class="relative w-14 h-14 rounded-full bg-slate-950 p-1 flex items-center justify-center border-2 border-amber-400 overflow-hidden shadow-xl">
+                        <img src="image.png" alt="شعار قطاع الحراسات والتأمين" class="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(212,175,55,0.6)]" onerror="this.src='https://placehold.co/60x60/070b14/d4af37?text=SEC'">
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-black tracking-wide gold-gradient-text">قطاع الحراسات والتأمين</h1>
+                    <p class="text-xs text-amber-200/70 font-semibold tracking-wider">الإدارة العامة لشرطة الحراسات الخاصة • مكتب القاهرة الجديدة (300)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="domain-admin-btn" onclick="showDomainSettings()" class="gold-badge px-3 py-2 rounded-xl text-xs font-bold hover:bg-amber-500/20 hidden flex items-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-users-gear text-amber-400"></i>
+                    <span>إدارة الطلبات والدومين</span>
+                </button>
+                <div class="flex items-center gap-2 gold-badge px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-inner">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+                    <span id="total-services-count" class="text-amber-100">جاري التحميل...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Sidebar Column -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            
+            <!-- Sector Selection -->
+            <div class="glass-card rounded-2xl p-5 shadow-2xl">
+                <h2 class="text-sm font-bold mb-3 flex items-center gap-2 text-amber-300 uppercase tracking-wider">
+                    <i class="fa-solid fa-shield-halved text-amber-400"></i> اختيار القطاع الجغرافي
+                </h2>
+                <div class="grid grid-cols-3 gap-2.5" id="sectors-container"></div>
+            </div>
+
+            <!-- Services Filter & List -->
+            <div class="glass-card rounded-2xl p-5 shadow-2xl flex flex-col h-[500px]">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-sm font-bold flex items-center gap-2 text-amber-300 uppercase tracking-wider">
+                        <i class="fa-solid fa-list-check text-amber-400"></i> قائمة خدمات القطاع
+                    </h2>
+                    <span id="sector-count-badge" class="text-xs gold-badge px-2.5 py-1 rounded-full font-bold">0 خدمة</span>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative mb-3">
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-amber-400/60">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="service-search" placeholder="ابحث باسم الخدمة، العنوان، أو التسليح..." 
+                        class="w-full bg-slate-950/90 border border-amber-500/30 rounded-xl pr-10 pl-4 py-2.5 text-sm focus:outline-none gold-border-focus transition-all text-amber-100 placeholder-slate-500">
+                </div>
+
+                <!-- Scrollable Services List -->
+                <div id="services-list" class="overflow-y-auto custom-scrollbar flex-grow space-y-2 pr-1"></div>
+            </div>
+        </section>
+
+        <!-- Details & Editing Column -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+            <div class="glass-card rounded-2xl p-6 shadow-2xl h-full flex flex-col justify-between min-h-[550px]" id="service-details-card">
+                <div id="service-details-content" class="space-y-6">
+                    <div class="flex flex-col items-center justify-center h-80 text-center text-slate-400 space-y-4">
+                        <div class="w-20 h-20 rounded-2xl bg-amber-500/10 flex items-center justify-center text-3xl text-amber-400 border border-amber-500/30 shadow-lg">
+                            <i class="fa-solid fa-fingerprint"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-amber-200">اختر خدمة لعرض وتعديل التفاصيل الكاملة</h3>
+                            <p class="text-xs text-slate-400 mt-1">قم بتحديد القطاع الجغرافي ثم اختر الخدمة المطلوبة من القائمة</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-card border-t border-amber-500/30 py-5 mt-8 text-center text-xs text-amber-200/80 space-y-2">
+        <p class="font-bold text-amber-100">قطاع الحراسات والتأمين • الإدارة العامة لشرطة الحراسات الخاصة &copy; 2026 - جميع الحقوق محفوظة</p>
+        <div class="pt-2 border-t border-amber-500/10 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] text-amber-300/80">
+            <span><i class="fa-solid fa-code text-amber-400 ml-1"></i> إعداد المنظومة: <strong class="text-amber-200">الملازم أول / مهند رأفت</strong></span>
+            <span><i class="fa-solid fa-phone text-amber-400 ml-1"></i> <a href="tel:01070805699" class="hover:text-amber-100 dir-ltr inline-block">01070805699</a></span>
+        </div>
+    </footer>
+
+    <script>
+        // Complete Database with exact files data matching all fields and separated attributes
+        const dbData = {
+            "قطاع شمال": [
+                {
+                    id: "n1",
+                    order: 1,
+                    name: "مكتب النائب العام",
+                    address: "القرنفل امتداد البوابة 5 الرحاب",
+                    weaponType: "ط9456",
+                    appointmentDate: "القرار رقم 160 لسنة 2015 تاريخ 18/9/2015",
+                    code: "327",
+                    deviceNumber: "-----",
+                    residenceInsurance: "1 نقطة على مدار اليوم تسليح طبنجة",
+                    escortGuard: "=====",
+                    supportService: "خدمات النظام مشرف بحث + مشرف نظام مسلحان ومجهزان لاسلكيا، عدد 2 ضابط بحث مسلحان ومجهزان، طوف قوامه (فرد بحث + فرد نظام) للمرور على الأسوار، 2 فرد مسلحان من إدارة الترحيلات للباب الرئيسي، 2 فرد مسلحان من إدارة الترحيلات للباب الخلفي، 2 فرد مسلحان من إدارة الترحيلات لمنطقة المصاعد، 2 فرد مسلحان من إدارة الترحيلات للحجز، 20 مجند بواقع 8 مجند تسليح آلي + 12 دنك موزعين على الباب الرئيسي، 1 آلي للبوابة الخلفية + 5 آلي للأبراج + 6 دنك للجراج، فرد نظام + فرد بحث + سيارة نجدة برئاسة ضابط + سيارة أمن مركزي برئاسة ضابط + ونش مرور + 2 نجدة مرور + ضابط نظام + ضابط بحث + مشرف.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/jbYhXnqENEkb37mm9"
+                },
+                {
+                    id: "n2",
+                    order: 2,
+                    name: "حسن محمد احمد عيسى (نائب رئيس الوزراء للشئون الاقتصادية)",
+                    address: "50/4 شارع نزار قباني المرحلة الأولى امام باب نادي الرحاب رقم 1 – الرحاب التجمع الأول القاهرة الجديدة",
+                    weaponType: "131647",
+                    appointmentDate: "11/2/2026 قرار 16 لسنة 2026",
+                    code: "65",
+                    deviceNumber: "9353",
+                    residenceInsurance: "1 نقطة على مدار اليوم رشاش",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "=====",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/GbF41N9v3Ge8HQ4q6?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "n3",
+                    order: 3,
+                    name: "وزير الأوقاف الدكتور / أسامة الأزهري",
+                    address: "فيلا 17 كمبوند ليان ريذيدنس",
+                    weaponType: "0860ط",
+                    appointmentDate: "21/8/2024م",
+                    code: "325",
+                    deviceNumber: "1451",
+                    residenceInsurance: "1 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "===========",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/66R5mngKFSvYonPt9?g_st=ipc"
+                },
+                {
+                    id: "n4",
+                    order: 4,
+                    name: "محمود محمد حلمي احمد الشريف (وزير العدل)",
+                    address: "فيلا B7 / 2 كمبوند جراند سيزار امام كمبوند الديار التجمع الخامس",
+                    weaponType: "5170",
+                    appointmentDate: "11/2/2026 قرار 14 لسنة 2026",
+                    code: "-----",
+                    deviceNumber: "1720",
+                    residenceInsurance: "عدد 1 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "=============",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/CgGnrxrtUJe47jsu6?g_st=ic"
+                },
+                {
+                    id: "n5",
+                    order: 5,
+                    name: "لواء / محمد إبراهيم (وزير الداخلية السابق)",
+                    address: "فيلا 88 A كمبوند لاروا خلف الجامعة الأمريكية التجمع الخامس",
+                    weaponType: "29864 ش / 034549 ش / 28078 ش / 27729 ش",
+                    appointmentDate: "22/3/2015",
+                    code: "321",
+                    deviceNumber: "2507",
+                    residenceInsurance: "4 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "ضابط + 2 فرد تسليح طبنجة + رشاش على البوابة الرئيسية للمنتجع، طوف أمني بالملابس المدنية بدراجة بخارية لتمشيط المنطقة المحيطة لمقر الإقامة، عدد 2 فرد تسليح طبنجة + آلي على كل بوابة من البوابتين المغلقتين للمنتجع، سيارة مسلحة من قوات الأمن برئاسة ضابط والقوة المرافقة للمرور حول أسوار المنتجع والتمركز أمام البوابة الرئيسية، سيارة تمركز من العمليات الخاصة برئاسة ضابط آلي + 4 مجند تسليح آلي بالقرب من المقر، عدد 2 عنصر بمدربيهم من المفرقعات، فرد إطفاء بالتجهيزات اللازمة، ونش مرور برئاسة ضابط.",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/HK5KEp8oUTn44zNs7?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "n6",
+                    order: 6,
+                    name: "م / حنفي علي الجبالي (رئيس مجلس النواب السابق)",
+                    address: "فيلا رقم (60) كمبوند الجزيرة جرين بارك منطقة المستثمرين الجنوبية التجمع الخامس القاهرة الجديدة",
+                    weaponType: "27734 ش / 7811ط",
+                    appointmentDate: "12/1/2021",
+                    code: "314",
+                    deviceNumber: "6020",
+                    residenceInsurance: "2 نقطة علي مدار اليوم تسليح رشاش + طبنجة",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "الباب الخلفي للكمبوند: سيارة قوات أمن برئاسة ضابط + 3 مجند تسليح آلي للتمركز في الجهة المقابلة للباب الخلفي لتأمين الضلع بالكامل + فرد نظام + فرد بحث طبنجة للتمركز بالباب الخلفي. الباب الرئيسي: سيارة العمليات الخاصة برئاسة ضابط والقوة المرافقة بجوار الباب الرئيسي + ضابط بحث طبنجة + فرد بحث + فرد نظام للارتكاز بالباب الرئيسي ونش مرور أمام الباب الرئيسي.",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/GbF41N9v3Ge8HQ4q6?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "n7",
+                    order: 7,
+                    name: "م / محمد هشام بركات (رئيس نيابة امن الدولة)",
+                    address: "فيلا رقم 17C كومبوند لا روا بالتجمع الخامس خلف الجامعة الامريكية",
+                    weaponType: "29938 ش",
+                    appointmentDate: "24/9/2019",
+                    code: "319",
+                    deviceNumber: "1939",
+                    residenceInsurance: "1 نقطة على مدار اليوم تسليح رشاش",
+                    escortGuard: "2 امين شرطه بالتناوب",
+                    supportService: "طوف أمنى قوامه (فرد نظام طبنجة + فرد بحث طبنجة ومجهزين لاسلكيا) لتأمين المنطقة المحيطة لمقر الإقامة، فرد بحث + فرد نظام طبنجة مجهزين لاسلكيا لتامين المنطقة الخلفية للمقر.",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/B4gjnBRNwHagjYqu9?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "n8",
+                    order: 8,
+                    name: "سفير فلسطين",
+                    address: "فيلا رقم (24/2) القطاع الرابع مركز المدينة متفرع من شارع التسعين الشمالي منطقة اللوتس القاهرة الجديدة",
+                    weaponType: "29900 ش",
+                    appointmentDate: "25/1/2021",
+                    code: "56",
+                    deviceNumber: "7021",
+                    residenceInsurance: "1 نقطة على مدار اليوم",
+                    escortGuard: "=====",
+                    supportService: "فرد نظام + فرد بحث + عدد 2 مجند قوات أمن.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/EjbNtV4nCeFu98fF9?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "n9",
+                    order: 9,
+                    name: "سفير جيبوتي",
+                    address: "الفيلا رقم 249 بجوار شركة السويدي للكابلات شارع التسعين الشمالي التجمع الخامس القاهرة الجديدة",
+                    weaponType: "7820 ط",
+                    appointmentDate: "9/10/2021",
+                    code: "309",
+                    deviceNumber: "6392",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "=====",
+                    supportService: "======",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/cZf2QcFhY1EiCUjV7?g_st=ipc"
+                },
+                {
+                    id: "n10",
+                    order: 10,
+                    name: "السيد / شريف محمد فاروق (وزير التموين والتجارة الداخلية)",
+                    address: "فيلا رقم 10 كمبوند حياة شارع التسعين الشمالي التجمع الخامس",
+                    weaponType: "243656 ط",
+                    appointmentDate: "القرار رقم 41 لسنة 2024 تاريخ 6/7/2024",
+                    code: "61",
+                    deviceNumber: "0799",
+                    residenceInsurance: "عدد 1 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "=========",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/pVaUHnyjPThDRFNX6?g_st=iw"
+                },
+                {
+                    id: "n11",
+                    order: 11,
+                    name: "م / احمد السيسي (ب)",
+                    address: "فيلا 249 كمبوند بالم هيلز منطقة المستثمرين الشمالية التجمع الاول",
+                    weaponType: "970167 ط / 034279 ش / 27732 ش",
+                    appointmentDate: "7/6/2022",
+                    code: "307ب",
+                    deviceNumber: "1720",
+                    residenceInsurance: "3 نقطة على مدار 24 ساعة",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "سيارة مسلحة أمن مركزي برئاسة ضابط (عدد 4 مجندين تسليح آلي) للتمركز بالضلع المطل على كمبوند لافونتان قبل بوابة رقم 3، فرد نظام بالملابس المدنية + فرد بحث مسلحين طبنجة ومجهزين لاسلكيا لتأمين الضلع الأمامي للفيلا.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/YGsuYvt3ptoK4aac7?g_st=ipc"
+                },
+                {
+                    id: "n12",
+                    order: 12,
+                    name: "م / تامر الفرجانى (رئيس محكمة استئناف القاهرة)",
+                    address: "التجمع الأول التسعين الشمالي ش محمد نجيب كمبوند عمارة 6A شقة 11",
+                    weaponType: "245292 ط",
+                    appointmentDate: "23/6/2022",
+                    code: "330",
+                    deviceNumber: "5977",
+                    residenceInsurance: "1 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "فرد نظام + فرد بحث.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/s1UqXHUxAdFFFG668?g_st=ipc"
+                },
+                {
+                    id: "n13",
+                    order: 13,
+                    name: "رئيس محكمة النقض السابق",
+                    address: "عمارة (63) كمبوند سكوير حي الروضة التجمع الخامس القاهرة الجديدة",
+                    weaponType: "131317 ط",
+                    appointmentDate: "9/7/2023",
+                    code: "81",
+                    deviceNumber: "3084",
+                    residenceInsurance: "1 نقطة على مدار اليوم",
+                    escortGuard: "=====",
+                    supportService: "=====",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/k7x5XSouoCRfuYpX9?g_st=ipc"
+                },
+                {
+                    id: "n14",
+                    order: 14,
+                    name: "سفير دولة التشاد",
+                    address: "الكائن فيلا رقم 16 p كمبوند لأروا التجمع الخامس القاهرة الجديدة",
+                    weaponType: "8833 ط",
+                    appointmentDate: "القرار رقم 23 لسنة 2021 تاريخ 23/4/2021",
+                    code: "303",
+                    deviceNumber: "2030",
+                    residenceInsurance: "1 نقطة على مدار اليوم تسليح طبنجة",
+                    escortGuard: "-------",
+                    supportService: "أدرج مقر الإقامة ضمن المرورات المحلية والاشرافية والقيادية لقطاع القاهرة الجديدة، إدراج مقر الإقامة ضمن خطة مرور السيد مفتش المفرقعات لتعقيم مقر الإقامة وكذا مداخل ومخارج المؤدية لمقر الإقامة.",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/cSnLzN7mh648ZAt98?g_st=ipc"
+                },
+                {
+                    id: "n15",
+                    order: 15,
+                    name: "سفير كازاخستان",
+                    address: "فيلا رقم 162 ديونز القاهرة الجديدة",
+                    weaponType: "245425",
+                    appointmentDate: "11/3/2025",
+                    code: "346",
+                    deviceNumber: "2092",
+                    residenceInsurance: "1 نقطة على مدار اليوم تسليح طبنجة",
+                    escortGuard: "=====",
+                    supportService: "=====",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/3FmSUKBPq2cd3Jks6?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "n16",
+                    order: 16,
+                    name: "المستشار / محمد عيد محجوب (رئيس المجلس الأعلى للقضاء السابق)",
+                    address: "كمبوند جاردن هايتس (كمبوند النيابة العامة) عمارة 26 الدور الرابع شقة (43-44) القاهرة الجديدة التجمع الخامس",
+                    weaponType: "4736 ط",
+                    appointmentDate: "10/8/2025 قرار رقم 22 لسنة 2025",
+                    code: "80",
+                    deviceNumber: "0582",
+                    residenceInsurance: "1 نقطة على مدار اليوم تسليح طبنجة",
+                    escortGuard: "=====",
+                    supportService: "=====",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/B4gjnBRNwHagjYqu9?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "n17",
+                    order: 17,
+                    name: "السيد المستشار / عصام الدين احمد محمد فريد (رئيس مجلس الشيوخ)",
+                    address: "الكائن بالعقار رقم 100 كمبوند ليك فيو ريزدينس التجمع الخامس القاهرة الجديدة",
+                    weaponType: "29943 ط",
+                    appointmentDate: "قرار رقم 52 لسنة 2025",
+                    code: "25",
+                    deviceNumber: "2835",
+                    residenceInsurance: "1 نقطة على مدار اليوم تسليح طبنجة",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "=====",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/k7x5XSouoCRfuYpX9?g_st=ipc"
+                },
+                {
+                    id: "n18",
+                    order: 18,
+                    name: "رئيس البنك الافريقي",
+                    address: "الكائن/ فيلا رقم 69 كمبوند القطامية ديونز التسعين الجنوبي التجمع الخامس",
+                    weaponType: "6418 ط",
+                    appointmentDate: "----",
+                    code: "320",
+                    deviceNumber: "-----",
+                    residenceInsurance: "1 نقطة على مدار اليوم تسليح طبنجة",
+                    escortGuard: "=====",
+                    supportService: "=====",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/e8Lw3AwL3KJZdvEv6?g_st=iw"
+                },
+                {
+                    id: "n19",
+                    order: 19,
+                    name: "سفير ساحل العاج (كوت فوار)",
+                    address: "فيلا رقم 288 القطامية ديونز التجمع الخامس القاهرة الجديدة",
+                    weaponType: "5124",
+                    appointmentDate: "قرار رقم 38 لسنة 2026",
+                    code: "305",
+                    deviceNumber: "0974",
+                    residenceInsurance: "1 نقطة على مدار اليوم تسليح طبنجة",
+                    escortGuard: "=====",
+                    supportService: "=====",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/J9CxKVewDL7gqkLTA?g_st=iw"
+                }
+            ],
+            "قطاع وسط": [
+                {
+                    id: "c1",
+                    order: 1,
+                    name: "وزير الكهرباء / د. محمود عصمت",
+                    address: "كمبوند كايرو فستيفال عمارة 13 التجمع الخامس",
+                    weaponType: "131291 ط",
+                    appointmentDate: "14/8/2022",
+                    code: "72",
+                    deviceNumber: "1219",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "=========",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/srGvVUkeEYXxN9K27?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "c2",
+                    order: 2,
+                    name: "السيد / خالد عاطف عبد الغفار (وزير الصحة)",
+                    address: "فيلا رقم 206 منتجع صوان ليك التجمع الأول القاهرة الجديدة",
+                    weaponType: "624 ط",
+                    appointmentDate: "16/2/2017",
+                    code: "74",
+                    deviceNumber: "0697",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "=====",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/VdxGqyvLAXCHZocs7?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "c3",
+                    order: 3,
+                    name: "وزير الخارجية / د. بدر عبد العاطي",
+                    address: "القطامية ريذيدنس (النخيل) P14 التجمع الأول القاهرة الجديدة",
+                    weaponType: "247545 ط",
+                    appointmentDate: "27/7/2024",
+                    code: "-----",
+                    deviceNumber: "1859",
+                    residenceInsurance: "1 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "===========",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/hBZzXLg5JdKZZJwG8?g_st=ic"
+                },
+                {
+                    id: "c4",
+                    order: 4,
+                    name: "لواء / احمد جمال (وزير الداخلية الاسبق)",
+                    address: "فيلا 2 ذ مجاورة 17 كمبوند الامن العام الياسمين التجمع الاول القاهرة الجديدة",
+                    weaponType: "0343 ط / 29904 ش",
+                    appointmentDate: "15/12/2015",
+                    code: "322",
+                    deviceNumber: "774",
+                    residenceInsurance: "2 نقطة علي مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "فرد نظام آلي + فرد بحث تسليح طبنجة مجهزين لاسلكيا.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/Vea12MqVtqK7Bn229?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "c5",
+                    order: 5,
+                    name: "م / ابراهيم صالح",
+                    address: "فيلا رقم 24 شرق أكاديمية الشرطة التجمع الاول القاهرة الجديدة",
+                    weaponType: "29829 ش",
+                    appointmentDate: "28/2/2017",
+                    code: "306",
+                    deviceNumber: "2345",
+                    residenceInsurance: "1 نقطة على مدار اليوم",
+                    escortGuard: "عدد (1) امين شرطه",
+                    supportService: "فرد نظام + فرد بحث تسليح طبنجة مجهزين لاسلكيا.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/snqFsp8AFeYVMLLw7?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "c6",
+                    order: 6,
+                    name: "رئيس المحكمة الدستورية / م. بوليس فهمى",
+                    address: "الفيلا رقم S7 القطامية ريذيدنس كمبوند النخيل القاهرة الجديدة",
+                    weaponType: "1675 ط",
+                    appointmentDate: "9/2/2022",
+                    code: "308",
+                    deviceNumber: "6212",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "فرد نظام + فرد بحث بالملابس المدنية تسليح طبنجة ومجهزين لاسلكيا.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/v1V5SJRMznuFdYYv7?g_st=ic"
+                },
+                {
+                    id: "c7",
+                    order: 7,
+                    name: "م / خالد ضياء الدين (مساعد الأمين العام لمجلس النواب)",
+                    address: "فيلا رقم 613 شارع رقم 3 التجمع الأول منتجع النخيل",
+                    weaponType: "28974 ش",
+                    appointmentDate: "5/12/2013",
+                    code: "323",
+                    deviceNumber: "0719",
+                    residenceInsurance: "1 نقطة على مدار اليوم",
+                    escortGuard: "=====",
+                    supportService: "فرد نظام إلي + فرد بحث تسليح طبنجة.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/yPGvK16rcTdi4Wax9?g_st=ipc"
+                },
+                {
+                    id: "c8",
+                    order: 8,
+                    name: "أ / تامر مرسي (منتج سينمائي)",
+                    address: "فيلا رقم 90 قرية الميراج سيتي التجمع الاول",
+                    weaponType: "7825 ط",
+                    appointmentDate: "12/5/2016",
+                    code: "64",
+                    deviceNumber: "3124",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "أمناء",
+                    supportService: "=====",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/2vde19owre3oip8t5?g_st=ipc"
+                },
+                {
+                    id: "c9",
+                    order: 9,
+                    name: "م / محمد شرين (رئيس محكمة استئناف القاهرة الاسبق)",
+                    address: "فيلا 11 محور عباس العقاد منطقة مجاوره 12 التجمع الأول",
+                    weaponType: "28141 ش / 289633 ش",
+                    appointmentDate: "16/5/2015",
+                    code: "324",
+                    deviceNumber: "0495",
+                    residenceInsurance: "2 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "سيارة قوات أمن برئاسة أمين شرطة + عدد 3 مجند + فرد نظام تسليح آلي + فرد بحث تسليح طبنجة مجهزين لاسلكيا.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/LTL7NJ3rnjNUoPX89?g_st=ipc"
+                },
+                {
+                    id: "c10",
+                    order: 10,
+                    name: "لواء / مدحت المنشاوي (مساعد الوزير للتدريب سابقا)",
+                    address: "الفيلا رقم 123 ش إسماعيل صديق العدوي خلف أكاديمية الشرطة المنطقة الثانية القاهرة الجديدة",
+                    weaponType: "9082 ط",
+                    appointmentDate: "1/12/2016",
+                    code: "331",
+                    deviceNumber: "1095",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "ضابط",
+                    supportService: "فرد بحث + فرد نظام.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/KF16LuEsN2TBopSw6?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "c11",
+                    order: 11,
+                    name: "لواء / محسن عبد النبي (مستشار السيد الرئيس للإعلام)",
+                    address: "فيلا رقم 126 جنوب الاكاديمية ب – امام المدرسة الامريكية – التجمع الأول",
+                    weaponType: "4360 ط",
+                    appointmentDate: "3/7/2018",
+                    code: "340",
+                    deviceNumber: "3187",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "سيارة مسلحة من قوات الأمن برئاسة فرد بمدخل ش عبد المنعم أحمد + فرد نظام بالمنطقة الخلفية + فرد بحث مسلحين طبنجة للمنطقة الامامية + 4 مجندين.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/ykJUxXWX4QRFXSnE6?g_st=com.google.maps.preview.copy"
+                },
+                {
+                    id: "c12",
+                    order: 12,
+                    name: "سفير زيمبابوي",
+                    address: "الفيلا رقم A2 كمبوند القطامية ريزيدنس التجمع الأول القاهرة الجديدة",
+                    weaponType: "8319 ط",
+                    appointmentDate: "28/6/2021",
+                    code: "334أ",
+                    deviceNumber: "9503",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "=========",
+                    supportService: "======",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/4WTqs4mydaMFsHZZ7?g_st=ipc"
+                },
+                {
+                    id: "c13",
+                    order: 13,
+                    name: "م / زكريا عبد العزيز (مساعد وزير العدل السابق)",
+                    address: "فيلا رقم 199 منطقة الياسمين (5) التجمع الأول القاهرة الجديدة",
+                    weaponType: "30058 ش",
+                    appointmentDate: "13/12/2015",
+                    code: "328",
+                    deviceNumber: "2699",
+                    residenceInsurance: "1 نقطة على مدار اليوم رشاش",
+                    escortGuard: "ضابط + أمناء أثناء التواجد بالقاهرة",
+                    supportService: "فرد نظام مسلح آلي ومجهز لاسلكي، فرد بحث مسلح طبنجة للمرور بمحيط المقر، عدد 1 سيارة مسلحة من قوات الأمن لمجموعة مسلحة 3 مجند مسلح آلي برئاسة رتبة مسلح رشاش، عدد 1 سيارة نجدة بقادة فرد مسلح طبنجة. في حالة عدم التواجد بمقر الإقامة الإبقاء على سيارة مسلحة ارتكاز من قوات الأمن برئاسة ضابط وطوف أمني (فرد بحث + فرد نظام) مسلحين ومجهزين لاسلكيا.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/ZZG4M19E7M4G8VEv7?g_st=ipc"
+                },
+                {
+                    id: "c14",
+                    order: 14,
+                    name: "م / وجدي عبد المنعم (عضو الدائرة الثانية بمحكمة جنايات شمال القاهرة)",
+                    address: "فيلا 217 حي البنفسج 3 أمام مدينة الرحاب التجمع الأول",
+                    weaponType: "243646 ط",
+                    appointmentDate: "19/5/2015",
+                    code: "312",
+                    deviceNumber: "6569",
+                    residenceInsurance: "1 نقطة على مدار اليوم رشاش",
+                    escortGuard: "اصطحاب حراسة المقر",
+                    supportService: "فرد نظام تسليح آلي، فرد بحث تسليح طبنجة ومجهز لاسلكي.",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/qgbrZxHc9AfKg9q98?g_st=ipc"
+                }
+            ],
+            "قطاع جنوب": [
+                {
+                    id: "s1",
+                    order: 1,
+                    name: "وزير النقل",
+                    address: "فيلا رقم 98 ش 79 الحي الثاني المنطقة الرابعة التجمع الخامس",
+                    weaponType: "0459 ط",
+                    appointmentDate: "15/11/2019",
+                    code: "79",
+                    deviceNumber: "3786",
+                    residenceInsurance: "1 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "فرد نظام تسليح طبنجة للتمركز أمام مقر الإقامة + طوف أمني (فرد نظام + فرد بحث تسليح طبنجة) لتأمين تقاطع شارع 79 مع شارع 47.",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/6eTKH7vDEgPcrG5Z8?g_st=ipc"
+                },
+                {
+                    id: "s2",
+                    order: 2,
+                    name: "وزير البترول",
+                    address: "فيلا رقم 490 شمال الشويفات التجمع الخامس",
+                    weaponType: "21851 ش",
+                    appointmentDate: "القرار رقم 39 لسنة 2024 تاريخ 6/7/2024",
+                    code: "301",
+                    deviceNumber: "1746",
+                    residenceInsurance: "عدد 1 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "========",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/posRkHxVYZBayA7X7?g_st=ipc"
+                },
+                {
+                    id: "s3",
+                    order: 3,
+                    name: "م / عمر مروان",
+                    address: "فيلا رقم 8 المنطقة الأولى – الحي الثاني - القاهرة الجديدة",
+                    weaponType: "8826 ط",
+                    appointmentDate: "16/2/2017",
+                    code: "76",
+                    deviceNumber: "1127",
+                    residenceInsurance: "1 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "فرد نظام + فرد بحث تسليح طبنجة مجهزين لاسلكيا.",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/gLvc1fGWkYgiBeWV9?g_st=ipc"
+                },
+                {
+                    id: "s4",
+                    order: 4,
+                    name: "وزير الصناعة",
+                    address: "فيلا رقم 52/3 كمبوند ليك فيو شارع التسعين التجمع الخامس القاهرة الجديدة",
+                    weaponType: "1407",
+                    appointmentDate: "11/2/2026 قرار 12 لسنة 2026",
+                    code: "332",
+                    deviceNumber: "132025",
+                    residenceInsurance: "1 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "==",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/LYsaowmQwSVkvk686?g_st=ic"
+                },
+                {
+                    id: "s5",
+                    order: 5,
+                    name: "لواء / فؤاد علام",
+                    address: "فيلا رقم 71 بجوار مدرسة اخناتون التجمع الخامس",
+                    weaponType: "034248 ش",
+                    appointmentDate: "31/7/2017",
+                    code: "317",
+                    deviceNumber: "1833",
+                    residenceInsurance: "عدد 1 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "فرد نظام تسليح آلي + فرد بحث تسليح طبنجة بالملابس المدنية ومجهزين لاسلكيا.",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/Djhuanxm2vPPrsou7?g_st=ipc"
+                },
+                {
+                    id: "s6",
+                    order: 6,
+                    name: "سفير زامبيا",
+                    address: "كمبوند ليك فيو فيلا رقم 39/5 التجمع الخامس القاهرة الجديدة",
+                    weaponType: "9266 ط",
+                    appointmentDate: "26/10/2020",
+                    code: "349",
+                    deviceNumber: "6412",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "=====",
+                    supportService: "====",
+                    policeStation: "التجمع الأول",
+                    map: "https://maps.app.goo.gl/n5rPy8zS5PTffg3k6?g_st=ipc"
+                },
+                {
+                    id: "s7",
+                    order: 7,
+                    name: "سفير اوزبكستان",
+                    address: "فيلا b8 كمبوند الصفوة ريزورت جنوب الشويفات التجمع الخامس القاهرة الجديدة",
+                    weaponType: "ط167240",
+                    appointmentDate: "1/7/2022",
+                    code: "348",
+                    deviceNumber: "689",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "======",
+                    supportService: "=========",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/rUiBsV57ALJc1gUs7?g_st=ipc"
+                },
+                {
+                    id: "s8",
+                    order: 8,
+                    name: "سفير غينيا الاستوائية",
+                    address: "فيلا رقم 86 الحي الأول المنطقة السابعة التجمع الخامس",
+                    weaponType: "7693 ط",
+                    appointmentDate: "8/10/2012",
+                    code: "316",
+                    deviceNumber: "5950",
+                    residenceInsurance: "1 نقطة على مدار اليوم",
+                    escortGuard: "لا يوجد",
+                    supportService: "====",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/t9hLFy5GeVEmEsFY9?g_st=ipc"
+                },
+                {
+                    id: "s9",
+                    order: 9,
+                    name: "سفير ناميبيا",
+                    address: "عقار سكني رقم 53 كمبوند ليك فيو التجمع الخامس القاهرة الجديدة",
+                    weaponType: "148472 ط",
+                    appointmentDate: "23/4/2021",
+                    code: "334",
+                    deviceNumber: "3117",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "=====",
+                    supportService: "======",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/Tf2MP4c6bjvQUbk96?g_st=ipc"
+                },
+                {
+                    id: "s10",
+                    order: 10,
+                    name: "حزب مستقبل وطن",
+                    address: "فيلا 65 ميدان ماونتن فيو شارع 90 التجمع الخامس",
+                    weaponType: "28128 ش",
+                    appointmentDate: "21/5/2018",
+                    code: "341",
+                    deviceNumber: "5992",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "منشأة",
+                    supportService: "سيارة مسلحة برئاسة ضابط والقوة المرافقة من قوات الأمن + ضابط بحث + عدد 5 فرد بحث مسلحين طبنجة ومجهزين لاسلكيا.",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.google.com?q=30.0155519,31.4462041&entry=gps"
+                },
+                {
+                    id: "s11",
+                    order: 11,
+                    name: "د / ثروت الحرباوي (القيادي السابق لجماعة الأخوان)",
+                    address: "فيلا رقم 199 الحي الأول – المنطقة السادسة – التجمع الخامس القاهرة الجديدة",
+                    weaponType: "133712 ط",
+                    appointmentDate: "3/7/2020",
+                    code: "337",
+                    deviceNumber: "1297",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "أمناء",
+                    supportService: "=====",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/f3yakj1moHkZL2SJA?g_st=ipc"
+                },
+                {
+                    id: "s12",
+                    order: 12,
+                    name: "السيد. د / علي عبد العال (رئيس مجلس النواب الاسبق)",
+                    address: "فيلا رقم (300) النرجس 4 شارع التسعين القاهرة الجديدة",
+                    weaponType: "300980 ش / 2777 ط / 27625 ش",
+                    appointmentDate: "11/1/2016",
+                    code: "344",
+                    deviceNumber: "5992",
+                    residenceInsurance: "3 نقطة على مدار اليوم",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "سيارة لاندكروزر قوات أمن برئاسة ضابط مسلح والقوة المرافقة له للتمركز بتقاطع ش رمسيس ويصا واصف مع شارع العالم بن النفيس + سيارة نجدة برئاسة مناسبة والقوة المرافقة للتمركز بمدخل الممر المجاور لمقر الإقامة + طوف أمني (فرد بحث + فرد نظام) تسليح طبنجة بالمنطقة المحيطة لمقر الإقامة والحديقة المواجهة للمقر + فرد نظام مسلح طبنجة على السدادات المرورية + الخدمة المرورية اللازمة برئاسة مناسبة + ونش مرور.",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/yF2212KoWXCAXXBc8?g_st=ipc"
+                },
+                {
+                    id: "s13",
+                    order: 13,
+                    name: "وحدة غسيل الاموال",
+                    address: "شارع التسعين التجمع الخامس",
+                    weaponType: "39943 ش / 38363 ش / 30068 ش / 27865 ش / 247249 ط / 247398 ط",
+                    appointmentDate: "10/12/2020",
+                    code: "307أ",
+                    deviceNumber: "4823",
+                    residenceInsurance: "6 نقطة علي مدار اليوم",
+                    escortGuard: "========",
+                    supportService: "عدد 2 طوف أمني قوام كل طوف (فرد بحث + فرد نظام تسليح طبنجة مجهزين لاسلكيا) لفحص حالات الاشتباه أحدهما مطل علي شارع التسعين والآخر مطل علي شارع الستين.",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/JTtXS3SYdDvv4YdT8?g_st=ipc"
+                },
+                {
+                    id: "s14",
+                    order: 14,
+                    name: "الملحقية العسكرية لدولة البحرين",
+                    address: "191 شمال الشويفات التجمع الخامس",
+                    weaponType: "8408",
+                    appointmentDate: "17/2/2025",
+                    code: "310أ",
+                    deviceNumber: "6450",
+                    residenceInsurance: "1 نقطة علي مدار اليوم",
+                    escortGuard: "لا يوجد",
+                    supportService: "=========",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/VGFBXRcm3a3hxNPF7?g_st=ipc"
+                },
+                {
+                    id: "s15",
+                    order: 15,
+                    name: "سفير كينيا",
+                    address: "فيلا رقم (2/134) بكمبوند ليك فيو التجمع الخامس القاهرة الجديدة",
+                    weaponType: "111007 ط",
+                    appointmentDate: "10/10/2024",
+                    code: "62",
+                    deviceNumber: "4733",
+                    residenceInsurance: "1 نقطة على مدار اليوم تسليح طبنجة",
+                    escortGuard: "=========",
+                    supportService: "=====",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/f2xhwPNCftQND7fk7?g_st=ipc"
+                },
+                {
+                    id: "s16",
+                    order: 16,
+                    name: "مجمع نيابات امن الدولة العليا",
+                    address: "التجمع الخامس مجمع المحاكم",
+                    weaponType: "5157 ط / 034575 ش",
+                    appointmentDate: "19/9/2019",
+                    code: "309أ",
+                    deviceNumber: "2274",
+                    residenceInsurance: "2 نقطة على مدار اليوم",
+                    escortGuard: "منشأة",
+                    supportService: "سيارة مسلحة أمن مركزي برئاسة ضابط + 4 مجند تسليح (2 آلي + 1 خرطوش + 1 غاز) لتأمين الباب الحديدي الخارجي، سيارة مسلحة من قوات الأمن برئاسة أمين شرطة + 3 مجند خلف المبنى، ضابط بحث بالمبني الرئيسي المعد لمبني المجمع، عنصر مفرقعات أمام الباب الحديدي الخارجي، فرد نظام لتأمين الباب الخارجي، 2 مجند تسليح دونق لتامين باب الجراج أسفل المبنى، 2 فرد نظام لحجز المبنى، فرد من قطاع الأمن الوطني و 4 مجند تسليح دنك بالأدوار أثناء التحقيقات.",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/28iLfnVxNf9cx7z98?g_st=ipc"
+                },
+                {
+                    id: "s17",
+                    order: 17,
+                    name: "وزير الاستثمار",
+                    address: "عمارة رقم 42 شقة 18 متفرع من شارع 27 المنطقة الأولى التجمع الخامس",
+                    weaponType: "1728",
+                    appointmentDate: "11/2/2026 قرار 13 لسنة 2026",
+                    code: "40",
+                    deviceNumber: "5184",
+                    residenceInsurance: "1 نقطة على مدار اليوم تسليح طبنجة",
+                    escortGuard: "ضابط + أمناء",
+                    supportService: "=====",
+                    policeStation: "التجمع الخامس",
+                    map: "https://maps.app.goo.gl/LYsaowmQwSVkvk686?g_st=ic"
+                }
+            ]
+        };
+
+        let currentSector = "قطاع شمال";
+        let currentServiceId = null;
+        let searchQuery = "";
+        let isAdminAuthenticated = false;
+        let currentLoggedUser = null;
+
+        // Domain credentials storage
+        let domainUser = localStorage.getItem("domain_user") || "Mohannad Rafaat";
+        let domainPass = localStorage.getItem("domain_pass") || "Herasat300";
+
+        // Registered accounts storage
+        function getRegisteredUsers() {
+            const data = localStorage.getItem("app_registered_users");
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveRegisteredUsers(users) {
+            localStorage.setItem("app_registered_users", JSON.stringify(users));
+        }
+
+        function getServiceField(serviceId, fieldName) {
+            const saved = localStorage.getItem(`field_${serviceId}_${fieldName}`);
+            if (saved !== null) return saved;
+            
+            const flatList = [...dbData["قطاع شمال"], ...dbData["قطاع وسط"], ...dbData["قطاع جنوب"]];
+            const found = flatList.find(s => s.id === serviceId);
+            return found ? (found[fieldName] || "") : "";
+        }
+
+        function saveServiceField(serviceId, fieldName, value) {
+            localStorage.setItem(`field_${serviceId}_${fieldName}`, value);
+        }
+
+        // Authentication UI controls
+        function showLoginBox() {
+            document.getElementById('login-box').classList.remove('hidden');
+            document.getElementById('register-box').classList.add('hidden');
+            document.getElementById('domain-panel-box').classList.add('hidden');
+            document.getElementById('auth-subtitle').innerText = "تسجيل الدخول للمنظومة الأمنية";
+            document.getElementById('auth-error').classList.add('hidden');
+            document.getElementById('auth-overlay').classList.remove('hidden');
+        }
+
+        function forgotPassword() {
+            const emailTo = "mohannadmohamed5@gmail.com";
+            const subject = encodeURIComponent("طلب استعادة اسم المستخدم أو كلمة المرور - منظومة الحراسات");
+            const body = encodeURIComponent("السلام عليكم،\n\nأحتاج إلى استعادة أو إعادة تعيين اسم المستخدم وكلمة المرور الخاصة بمنظومة قطاع الحراسات والتأمين.\n\nبرجاء المساعدة في إرسال بيانات الدخول الجديدة.\n\nشكراً لكم.");
+            
+            // Trigger mail client or fallback notification
+            window.location.href = `mailto:${emailTo}?subject=${subject}&body=${body}`;
+            
+            alert("تم توجيه طلب استعادة بيانات الدخول إلى البريد الإلكتروني المسؤول:\nmohannadmohamed5@gmail.com\n\nيرجى إرسال البريد وسيتم الرد ببيانات الدخول الجديدة.");
+        }
+
+        function showRegisterBox() {
+            document.getElementById('login-box').classList.add('hidden');
+            document.getElementById('register-box').classList.remove('hidden');
+            document.getElementById('domain-panel-box').classList.add('hidden');
+            document.getElementById('auth-subtitle').innerText = "طلب تسجيل حساب جديد في المنظومة";
+            document.getElementById('reg-error').classList.add('hidden');
+            document.getElementById('reg-success').classList.add('hidden');
+        }
+
+        function showDomainSettings() {
+            // Check if current user is admin domain
+            if (currentLoggedUser !== domainUser) {
+                alert("عذراً، هذه الإدارة مخصصة لمشرف الدومين فقط.");
+                return;
+            }
+            document.getElementById('login-box').classList.add('hidden');
+            document.getElementById('register-box').classList.add('hidden');
+            document.getElementById('domain-panel-box').classList.remove('hidden');
+            document.getElementById('auth-subtitle').innerText = "لوحة تحكم وتحيع طلبات الدومين";
+            
+            document.getElementById('domain-edit-user').value = domainUser;
+            document.getElementById('domain-edit-pass').value = domainPass;
+            renderPendingRequests();
+            document.getElementById('auth-overlay').classList.remove('hidden');
+        }
+
+        function saveDomainCredentials() {
+            const newUser = document.getElementById('domain-edit-user').value.trim();
+            const newPass = document.getElementById('domain-edit-pass').value.trim();
+            if (!newUser || !newPass) {
+                alert("يرجى إدخال اسم المستخدم وكلمة المرور بشكل صحيح");
+                return;
+            }
+            domainUser = newUser;
+            domainPass = newPass;
+            localStorage.setItem("domain_user", domainUser);
+            localStorage.setItem("domain_pass", domainPass);
+            alert("تم تحديث بيانات الدومين بنجاح!");
+        }
+
+        function submitRegistration() {
+            const name = document.getElementById('reg-name').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const nid = document.getElementById('reg-nid').value.trim();
+            const seniority = document.getElementById('reg-seniority').value.trim();
+            const workplace = document.getElementById('reg-workplace').value.trim();
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value.trim();
+
+            if (!name || !phone || !nid || !seniority || !workplace || !username || !password) {
+                document.getElementById('reg-error').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('reg-error').classList.add('hidden');
+
+            const users = getRegisteredUsers();
+            if (users.some(u => u.username === username) || username === domainUser) {
+                alert("اسم المستخدم مستخدم مسبقاً، يرجى اختيار اسم آخر.");
+                return;
+            }
+
+            users.push({
+                name, phone, nid, seniority, workplace, username, password, approved: false, id: Date.now().toString()
+            });
+            saveRegisteredUsers(users);
+
+            document.getElementById('reg-success').classList.remove('hidden');
+            setTimeout(() => {
+                showLoginBox();
+            }, 2000);
+        }
+
+        function handleLogin() {
+            const uInput = document.getElementById('login-username').value.trim();
+            const pInput = document.getElementById('login-password').value.trim();
+            const errorEl = document.getElementById('auth-error');
+
+            if (uInput === domainUser && pInput === domainPass) {
+                isAdminAuthenticated = true;
+                currentLoggedUser = domainUser;
+                errorEl.classList.add('hidden');
+                document.getElementById('auth-overlay').classList.add('hidden');
+                document.getElementById('domain-admin-btn').classList.remove('hidden');
+                if (currentServiceId) renderServiceDetails();
+                return;
+            }
+
+            // Check approved registered users
+            const users = getRegisteredUsers();
+            const foundUser = users.find(u => u.username === uInput && u.password === pInput);
+
+            if (foundUser) {
+                if (!foundUser.approved) {
+                    errorEl.innerText = "الحساب بانتظار موافقة مشرف الدومين (Domain)";
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+                isAdminAuthenticated = true; // Approved user has read/edit access
+                currentLoggedUser = foundUser.username;
+                errorEl.classList.add('hidden');
+                document.getElementById('auth-overlay').classList.add('hidden');
+                if (currentServiceId) renderServiceDetails();
+                return;
+            }
+
+            errorEl.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة، أو الحساب غير مفعّل";
+            errorEl.classList.remove('hidden');
+        }
+
+        function renderPendingRequests() {
+            const users = getRegisteredUsers();
+            const pending = users.filter(u => !u.approved);
+            const container = document.getElementById('pending-requests-list');
+
+            if (pending.length === 0) {
+                container.innerHTML = `<div class="text-slate-500 text-center py-4">لا توجد طلبات تسجيل معلقة حالياً</div>`;
+                return;
+            }
+
+            container.innerHTML = pending.map(u => `
+                <div class="bg-slate-900 p-2.5 rounded-xl border border-amber-500/30 flex flex-col gap-1">
+                    <div class="flex justify-between items-center">
+                        <strong class="text-amber-200">${u.name}</strong>
+                        <span class="text-[10px] text-slate-400 font-mono">(@${u.username})</span>
+                    </div>
+                    <div class="text-[10px] text-slate-300 grid grid-cols-2 gap-1">
+                        <span>هاتف: ${u.phone}</span>
+                        <span>الرقم القومي: ${u.nid}</span>
+                        <span>الأقدمية: ${u.seniority}</span>
+                        <span>مكان العمل: ${u.workplace}</span>
+                    </div>
+                    <div class="flex gap-2 mt-1 pt-1 border-t border-slate-800">
+                        <button onclick="approveUser('${u.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1 rounded font-bold text-[11px]">قبول الطلب</button>
+                        <button onclick="rejectUser('${u.id}')" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-1 rounded font-bold text-[11px]">رفض / حذف</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function approveUser(id) {
+            let users = getRegisteredUsers();
+            users = users.map(u => u.id === id ? {...u, approved: true} : u);
+            saveRegisteredUsers(users);
+            renderPendingRequests();
+        }
+
+        function rejectUser(id) {
+            let users = getRegisteredUsers();
+            users = users.filter(u => u.id !== id);
+            saveRegisteredUsers(users);
+            renderPendingRequests();
+        }
+
+        function initApp() {
+            const total = Object.values(dbData).reduce((acc, curr) => acc + curr.length, 0);
+            document.getElementById('total-services-count').innerText = `إجمالي الخدمات: ${total}`;
+            renderSectors();
+            renderServicesList();
+        }
+
+        function renderSectors() {
+            const container = document.getElementById('sectors-container');
+            const sectors = ["قطاع شمال", "قطاع وسط", "قطاع جنوب"];
+            
+            container.innerHTML = sectors.map(sector => {
+                const isActive = sector === currentSector;
+                const count = dbData[sector].length;
+                return `
+                    <button onclick="selectSector('${sector}')" 
+                        class="p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-1 ${isActive ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-lg shadow-amber-500/10 font-bold' : 'bg-slate-950/60 border-amber-500/20 text-slate-400 hover:bg-slate-900 hover:text-amber-300'}">
+                        <span class="text-xs sm:text-sm">${sector}</span>
+                        <span class="text-[10px] opacity-75">(${count} خدمة)</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectSector(sector) {
+            currentSector = sector;
+            currentServiceId = null;
+            renderSectors();
+            renderServicesList();
+            renderEmptyDetails();
+        }
+
+        function renderServicesList() {
+            const listContainer = document.getElementById('services-list');
+            const services = dbData[currentSector].filter(s => 
+                s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                (s.address && s.address.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                (s.weaponType && s.weaponType.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                (s.policeStation && s.policeStation.toLowerCase().includes(searchQuery.toLowerCase()))
+            );
+            
+            document.getElementById('sector-count-badge').innerText = `${services.length} خدمة`;
+
+            if (services.length === 0) {
+                listContainer.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">لا توجد نتائج مطابقة للبحث</div>`;
+                return;
+            }
+
+            listContainer.innerHTML = services.map(service => {
+                const isSelected = service.id === currentServiceId;
+                const dynamicName = getServiceField(service.id, 'name') || service.name;
+                const dynamicAddress = getServiceField(service.id, 'address') || service.address;
+                return `
+                    <div onclick="selectService('${service.id}')" 
+                        class="p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between group ${isSelected ? 'bg-amber-500/25 border-amber-400 text-amber-100 shadow-md' : 'bg-slate-950/50 border-amber-500/15 text-slate-300 hover:bg-slate-900/80 hover:border-amber-500/30'}">
+                        <div class="flex items-center gap-3 truncate">
+                            <div class="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center text-xs text-amber-400 border border-amber-500/30 group-hover:bg-amber-500 group-hover:text-black transition-colors shrink-0">
+                                <span class="font-bold text-[11px]">${service.order}</span>
+                            </div>
+                            <div class="truncate">
+                                <span class="text-xs sm:text-sm font-bold truncate block">${dynamicName}</span>
+                                <span class="text-[10px] text-slate-400 truncate block">${dynamicAddress}</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-left text-[10px] text-amber-400/60"></i>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('service-search').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderServicesList();
+        });
+
+        function selectService(id) {
+            currentServiceId = id;
+            renderServicesList();
+            renderServiceDetails();
+        }
+
+        function renderEmptyDetails() {
+            document.getElementById('service-details-content').innerHTML = `
+                <div class="flex flex-col items-center justify-center h-80 text-center text-slate-400 space-y-4">
+                    <div class="w-20 h-20 rounded-2xl bg-amber-500/10 flex items-center justify-center text-3xl text-amber-400 border border-amber-500/30 shadow-lg">
+                        <i class="fa-solid fa-fingerprint"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-amber-200">اختر خدمة لعرض وتعديل التفاصيل الكاملة</h3>
+                        <p class="text-xs text-slate-400 mt-1">قم بتحديد القطاع الجغرافي ثم اختر الخدمة المطلوبة من القائمة الجانبية</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderServiceDetails() {
+            const flatList = [...dbData["قطاع شمال"], ...dbData["قطاع وسط"], ...dbData["قطاع جنوب"]];
+            const service = flatList.find(s => s.id === currentServiceId);
+            if (!service) return;
+
+            const name = getServiceField(service.id, 'name');
+            const address = getServiceField(service.id, 'address');
+            const weaponType = getServiceField(service.id, 'weaponType');
+            const appointmentDate = getServiceField(service.id, 'appointmentDate');
+            const code = getServiceField(service.id, 'code');
+            const deviceNumber = getServiceField(service.id, 'deviceNumber');
+            const residenceInsurance = getServiceField(service.id, 'residenceInsurance');
+            const escortGuard = getServiceField(service.id, 'escortGuard');
+            const supportService = getServiceField(service.id, 'supportService');
+            const policeStation = getServiceField(service.id, 'policeStation');
+
+            const isLockedClass = !isAdminAuthenticated ? 'admin-locked bg-slate-950/50' : 'bg-slate-900';
+            const readonlyAttr = !isAdminAuthenticated ? 'readonly title="مطلوب تسجيل دخول المشرف للتعديل"' : '';
+
+            document.getElementById('service-details-content').innerHTML = `
+                <div class="space-y-4 max-h-[580px] overflow-y-auto custom-scrollbar pr-2">
+                    <!-- Header Bar -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-amber-500/20 pb-4">
+                        <div class="w-full">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <span class="text-xs gold-badge px-3 py-1 rounded-full font-bold">${currentSector}</span>
+                                <span class="text-xs bg-slate-900 border border-amber-500/30 px-2.5 py-0.5 rounded-full text-amber-300 font-mono">مسلسل: ${service.order}</span>
+                                <span class="text-xs bg-slate-900 border border-amber-500/30 px-2.5 py-0.5 rounded-full text-amber-200 font-mono">الكود: ${code}</span>
+                                <span class="text-xs bg-slate-900 border border-amber-500/30 px-2.5 py-0.5 rounded-full text-emerald-300 font-mono">القسم: ${policeStation}</span>
+                            </div>
+                            <input type="text" value="${name}" class="w-full bg-transparent text-lg sm:text-xl font-black text-amber-100 focus:outline-none border-b border-transparent focus:border-amber-400 transition-all ${!isAdminAuthenticated ? 'pointer-events-none' : ''}" ${readonlyAttr} oninput="fieldChanged('${service.id}', 'name', this.value)">
+                        </div>
+                        <a href="${service.map}" target="_blank" class="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-black px-4 py-2 rounded-xl text-xs sm:text-sm font-black flex items-center gap-2 shadow-lg shadow-amber-500/20 transition-all shrink-0">
+                            <i class="fa-solid fa-map-location-dot"></i> فتح الخريطة
+                        </a>
+                    </div>
+
+                    <!-- Address & Basic info Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-slate-950/70 p-3 rounded-xl border border-amber-500/20">
+                            <label class="block text-amber-300 font-bold mb-1 text-xs"><i class="fa-solid fa-location-dot text-amber-400 ml-1"></i> الـعـنـــــوان:</label>
+                            <input type="text" value="${address}" class="w-full ${isLockedClass} border border-amber-500/30 rounded-lg p-2 text-xs text-amber-100 gold-border-focus" ${readonlyAttr} oninput="fieldChanged('${service.id}', 'address', this.value)">
+                        </div>
+                        <div class="bg-slate-950/70 p-3 rounded-xl border border-amber-500/20">
+                            <label class="block text-amber-300 font-bold mb-1 text-xs"><i class="fa-solid fa-calendar-days text-amber-400 ml-1"></i> تاريخ تعيين الحراسة:</label>
+                            <input type="text" value="${appointmentDate}" class="w-full ${isLockedClass} border border-amber-500/30 rounded-lg p-2 text-xs text-amber-100 gold-border-focus" ${readonlyAttr} oninput="fieldChanged('${service.id}', 'appointmentDate', this.value)">
+                        </div>
+                    </div>
+
+                    <!-- Weapon & Devices Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-slate-950/70 p-3 rounded-xl border border-amber-500/20">
+                            <label class="block text-amber-300 font-bold mb-1 text-xs"><i class="fa-solid fa-gun text-amber-400 ml-1"></i> رقم ونوع التسليح:</label>
+                            <input type="text" value="${weaponType}" class="w-full ${isLockedClass} border border-amber-500/30 rounded-lg p-2 text-xs text-amber-100 gold-border-focus" ${readonlyAttr} oninput="fieldChanged('${service.id}', 'weaponType', this.value)">
+                        </div>
+                        <div class="bg-slate-950/70 p-3 rounded-xl border border-amber-500/20">
+                            <label class="block text-amber-300 font-bold mb-1 text-xs"><i class="fa-solid fa-walkie-talkie text-amber-400 ml-1"></i> رقم الجهاز اللاسلكي:</label>
+                            <input type="text" value="${deviceNumber}" class="w-full ${isLockedClass} border border-amber-500/30 rounded-lg p-2 text-xs text-amber-100 gold-border-focus" ${readonlyAttr} oninput="fieldChanged('${service.id}', 'deviceNumber', this.value)">
+                        </div>
+                    </div>
+
+                    <!-- Insurance Strength Section -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-slate-950/70 p-3 rounded-xl border border-amber-500/20">
+                            <label class="block text-amber-300 font-bold mb-1 text-xs"><i class="fa-solid fa-shield text-amber-400 ml-1"></i> مقر الإقامة (قوام التأمين):</label>
+                            <input type="text" value="${residenceInsurance}" class="w-full ${isLockedClass} border border-amber-500/30 rounded-lg p-2 text-xs text-amber-100 gold-border-focus" ${readonlyAttr} oninput="fieldChanged('${service.id}', 'residenceInsurance', this.value)">
+                        </div>
+                        <div class="bg-slate-950/70 p-3 rounded-xl border border-amber-500/20">
+                            <label class="block text-amber-300 font-bold mb-1 text-xs"><i class="fa-solid fa-user-shield text-amber-400 ml-1"></i> حراسة مرافقة:</label>
+                            <input type="text" value="${escortGuard}" class="w-full ${isLockedClass} border border-amber-500/30 rounded-lg p-2 text-xs text-amber-100 gold-border-focus" ${readonlyAttr} oninput="fieldChanged('${service.id}', 'escortGuard', this.value)">
+                        </div>
+                    </div>
+
+                    <!-- Support Services -->
+                    <div class="bg-slate-950/90 p-4 rounded-xl border border-amber-500/40 shadow-xl">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-amber-400"></i> خدمة معاونة (التجهيزات والخدمات الأمنية المرافقة)
+                            </label>
+                            <span id="save-status" class="text-[11px] text-emerald-400 font-semibold opacity-0 transition-opacity">تم الحفظ تلقائياً ✓</span>
+                        </div>
+                        <textarea rows="4" class="w-full bg-slate-900 border border-amber-500/30 rounded-xl p-3 text-xs sm:text-sm text-amber-100 gold-border-focus transition-colors leading-relaxed ${!isAdminAuthenticated ? 'admin-locked' : ''}"
+                            ${readonlyAttr} oninput="fieldChanged('${service.id}', 'supportService', this.value)">${supportService}</textarea>
+                        <p class="text-[11px] ${isAdminAuthenticated ? 'text-slate-500' : 'text-amber-400/90 font-bold'} mt-2">
+                            ${isAdminAuthenticated ? 'ملاحظة: يتم حفظ كافة التعديلات تلقائياً في المتصفح.' : '🔒 وضع القراءة فقط: مطلوب تسجيل الدخول كـ Admin للتعديل.'}
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        let saveTimeout;
+        function fieldChanged(serviceId, fieldName, value) {
+            if (!isAdminAuthenticated) return;
+            saveServiceField(serviceId, fieldName, value);
+            
+            if (fieldName === 'name' || fieldName === 'address') {
+                renderServicesList();
+            }
+
+            const statusEl = document.getElementById('save-status');
+            if (statusEl) {
+                statusEl.style.opacity = '1';
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    statusEl.style.opacity = '0';
+                }, 1500);
+            }
+        }
+
+        window.onload = function() {
+            initApp();
+            showLoginBox();
+        };
+    </script>
+</body>
+</html>
